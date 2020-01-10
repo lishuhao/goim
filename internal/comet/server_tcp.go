@@ -112,6 +112,7 @@ func (s *Server) ServeTCP(conn *net.TCPConn, rp, wp *bytes.Pool, tr *xtime.Timer
 		rr      = &ch.Reader
 		wr      = &ch.Writer
 	)
+	log.Info("receive socket msg --------")
 	ch.Reader.ResetBuffer(conn, rb.Bytes())
 	ch.Writer.ResetBuffer(conn, wb.Bytes())
 	ctx, cancel := context.WithCancel(context.Background())
@@ -335,7 +336,7 @@ func (s *Server) authTCP(ctx context.Context, rr *bufio.Reader, wr *bufio.Writer
 		}
 	}
 	if mid, key, rid, accepts, hb, err = s.Connect(ctx, p, ""); err != nil {
-		log.Errorf("authTCP.Connect(key:%v).err(%v)", key, err)
+		log.Errorf("authTCP.Connect(key:%v).err(%v),proto(%s)", key, err,p.String())
 		return
 	}
 	p.Op = grpc.OpAuthReply
