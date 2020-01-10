@@ -1,0 +1,27 @@
+version: "3"
+services:
+  redis:
+    image: redis:5
+    restart: always
+    ports:
+      - 6379:6379
+  zookeeper:
+    image: wurstmeister/zookeeper
+    restart: always
+    ports:
+      - "2181:2181"
+  kafka:
+    image: wurstmeister/kafka
+    restart: always
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      # KAFKA_ADVERTISED_HOST_NAME: 192.168.199.139
+      KAFKA_ADVERTISED_HOST_NAME: 10.0.4.136
+      KAFKA_CREATE_TOPICS: "goim-push-topic:1:1"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      #KAFKA_BROKER_ID: 1001
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

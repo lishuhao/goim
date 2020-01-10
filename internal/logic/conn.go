@@ -29,6 +29,7 @@ func (l *Logic) Connect(c context.Context, server, cookie string, token []byte) 
 	accepts = params.Accepts
 	hb = int64(l.c.Node.Heartbeat) * int64(l.c.Node.HeartbeatMax)
 	if key = params.Key; key == "" {
+		//TODO 这里可以返回应用内用户唯一id，之后可以按key（即用户id）发送消息
 		key = uuid.New().String()
 	}
 	if err = l.dao.AddMapping(c, mid, key, server); err != nil {
@@ -80,6 +81,12 @@ func (l *Logic) RenewOnline(c context.Context, server string, roomCount map[stri
 
 // Receive receive a message.
 func (l *Logic) Receive(c context.Context, mid int64, proto *grpc.Proto) (err error) {
+	//TODO
+	//err = l.PushRoom(c, proto.Op, "live", "1000", proto.Body)
+	//if err != nil {
+	//	log.Error("push err" + err.Error())
+	//}
+
 	log.Infof("receive mid:%d message:%+v", mid, proto)
 	return
 }
