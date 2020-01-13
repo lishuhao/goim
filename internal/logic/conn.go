@@ -81,7 +81,8 @@ func (l *Logic) RenewOnline(c context.Context, server string, roomCount map[stri
 
 // Receive receive a message.
 func (l *Logic) Receive(c context.Context, mid int64, proto *grpc.Proto) (err error) {
-	//TODO 根据 proto.Op 处理业务消息
+	//CUSTOM
+	// TODO  根据 proto.Op 处理业务消息
 	err = l.PushAll(c, proto.Op, 0, proto.Body)
 	if err != nil {
 		log.Error("push err" + err.Error())
