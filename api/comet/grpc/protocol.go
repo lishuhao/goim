@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"errors"
+	log "github.com/golang/glog"
 
 	"github.com/Terry-Mao/goim/pkg/bufio"
 	"github.com/Terry-Mao/goim/pkg/bytes"
@@ -95,6 +96,7 @@ func (p *Proto) ReadTCP(rr *bufio.Reader) (err error) {
 
 // WriteTCP write a proto to TCP writer.
 func (p *Proto) WriteTCP(wr *bufio.Writer) (err error) {
+	log.Info("write tcp ",*p)
 	var (
 		buf     []byte
 		packLen int32

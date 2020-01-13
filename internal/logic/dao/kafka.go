@@ -59,6 +59,7 @@ func (d *Dao) BroadcastRoomMsg(c context.Context, op int32, room string, msg []b
 
 // BroadcastMsg push a message to databus.
 func (d *Dao) BroadcastMsg(c context.Context, op, speed int32, msg []byte) (err error) {
+	log.Info("receive broadcast req:", op, speed, string(msg))
 	pushMsg := &pb.PushMsg{
 		Type:      pb.PushMsg_BROADCAST,
 		Operation: op,

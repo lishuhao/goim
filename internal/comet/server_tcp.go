@@ -157,17 +157,20 @@ func (s *Server) ServeTCP(conn *net.TCPConn, rp, wp *bytes.Pool, tr *xtime.Timer
 	serverHeartbeat := s.RandServerHearbeat()
 	for {
 		if p, err = ch.CliProto.Set(); err != nil {
+			log.Error("ch.CliProto.Set ",err)
 			break
 		}
 		if white {
 			whitelist.Printf("key: %s start read proto\n", ch.Key)
 		}
 		if err = p.ReadTCP(rr); err != nil {
+			log.Error("read tcp err",err)
 			break
 		}
 		if white {
 			whitelist.Printf("key: %s read proto:%v\n", ch.Key, p)
 		}
+		log.Info("read tcp proto:", p)
 		if p.Op == grpc.OpHeartbeat {
 			tr.Set(trd, hb)
 			p.Op = grpc.OpHeartbeatReply
@@ -184,16 +187,28 @@ func (s *Server) ServeTCP(conn *net.TCPConn, rp, wp *bytes.Pool, tr *xtime.Timer
 			step++
 		} else {
 			if err = s.Operate(ctx, p, ch, b); err != nil {
+				log.Error("operate err",err)
 				break
 			}
 		}
 		if white {
 			whitelist.Printf("key: %s process proto:%v\n", ch.Key, p)
 		}
-		ch.CliProto.SetAdv()
-		ch.Signal()
-		if white {
-			whitelist.Printf("key: %s signal\n", ch.Key)
+
+		//ch.CliProto.SetAdv()
+		//ch.Signal()
+		//if white {
+		//	whitelist.Printf("key: %s signal\n", ch.Key)
+		//}
+
+		// CUSTOM
+		// 自定义消息不执行以下操作
+		if p.Op <= 1000{
+			ch.CliProto.SetAdv()
+			ch.Signal()
+			if white {
+				whitelist.Printf("key: %s signal\n", ch.Key)
+			}
 		}
 	}
 	if white {
@@ -201,6 +216,9 @@ func (s *Server) ServeTCP(conn *net.TCPConn, rp, wp *bytes.Pool, tr *xtime.Timer
 	}
 	if err != nil && err != io.EOF && !strings.Contains(err.Error(), "closed") {
 		log.Errorf("key: %s server tcp failed error(%v)", ch.Key, err)
+	}
+	if err != nil {
+		log.Error("ServeTCP err",err)
 	}
 	b.Del(ch)
 	tr.Del(trd)
@@ -258,6 +276,7 @@ func (s *Server) dispatchTCP(conn *net.TCPConn, wr *bufio.Writer, wp *bytes.Pool
 				if p, err = ch.CliProto.Get(); err != nil {
 					break
 				}
+				log.Info("ready proto:", p)
 				if white {
 					whitelist.Printf("key: %s start write client proto%v\n", ch.Key, p)
 				}
@@ -335,8 +354,9 @@ func (s *Server) authTCP(ctx context.Context, rr *bufio.Reader, wr *bufio.Writer
 			log.Errorf("tcp request operation(%d) not auth", p.Op)
 		}
 	}
+	log.Infof("auth body(%s),proto(%s)", string(p.Body), p.String())
 	if mid, key, rid, accepts, hb, err = s.Connect(ctx, p, ""); err != nil {
-		log.Errorf("authTCP.Connect(key:%v).err(%v),proto(%s)", key, err,p.String())
+		log.Errorf("authTCP.Connect(key:%v).err(%v),proto(%s)", key, err, p.String())
 		return
 	}
 	p.Op = grpc.OpAuthReply

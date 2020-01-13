@@ -66,6 +66,7 @@ func (s *Server) Receive(ctx context.Context, mid int64, p *model.Proto) (err er
 
 // Operate operate.
 func (s *Server) Operate(ctx context.Context, p *model.Proto, ch *Channel, b *Bucket) error {
+	log.Info("operate proto", *p)
 	switch p.Op {
 	case model.OpChangeRoom:
 		if err := b.ChangeRoom(string(p.Body), ch); err != nil {

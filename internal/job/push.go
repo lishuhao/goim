@@ -61,7 +61,12 @@ func (j *Job) broadcast(operation int32, body []byte, speed int32) (err error) {
 	p.Body = buf.Buffer()
 	p.Op = comet.OpRaw
 	comets := j.cometServers
-	speed /= int32(len(comets))
+	if len(comets) == 0 {
+		log.Warning("broadcast len(comets) = 0")
+		speed = 0
+	}else{
+		speed /= int32(len(comets))
+	}
 	var args = comet.BroadcastReq{
 		ProtoOp: operation,
 		Proto:   p,
