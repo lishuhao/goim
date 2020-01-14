@@ -1,3 +1,4 @@
-- comet 重启后cometServer count 为0，需等待一段时间几分钟
+- comet 重启后cometServer count 为0，需等待一段时间(几分钟)
 - 直播间管理
 - rest 转 socket
+- 用户管理
