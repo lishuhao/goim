@@ -41,6 +41,8 @@ func (s *Server) initRouter() {
 	group.GET("/online/total", s.onlineTotal)
 	group.GET("/nodes/weighted", s.nodesWeighted)
 	group.GET("/nodes/instances", s.nodesInstances)
+
+	group.GET("/user/token/:user_id",s.getGoIMToken)
 }
 
 // Close close the server.

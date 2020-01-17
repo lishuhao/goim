@@ -89,3 +89,23 @@ func (r *Room) OnlineNum() int32 {
 	}
 	return r.Online
 }
+
+func (r Room) MasterId() string {
+	if c := r.next; c == nil {
+		return ""
+	} else {
+		return c.Key
+	}
+}
+
+func (r Room) Users() []string {
+	users := make([]string, 0)
+	for {
+		if c := r.next; c == nil {
+			break
+		} else {
+			users = append(users, c.Key)
+		}
+	}
+	return users
+}

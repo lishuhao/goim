@@ -83,8 +83,25 @@ func (s *Server) Operate(ctx context.Context, p *model.Proto, ch *Channel, b *Bu
 			ch.UnWatch(ops...)
 		}
 		p.Op = model.OpUnsubReply
+	/*case model.OpJoinRoom:
+		req := msg.JoinRoomReq{}
+		err := json.Unmarshal(p.Body, &req)
+		if err != nil {
+			break
+		}
+		if err := b.ChangeRoom(req.RoomID, ch); err != nil {
+			log.Errorf("b.ChangeRoom(%s) error(%v)", p.Body, err)
+		}
+		p.Op = model.OpJoinRoomReply
+		body := msg.JoinRoomReply{
+			ID:             "joinRoomResponse",
+			MasterID:       b.Room(req.RoomID).MasterId(),
+			OnlineUserList: b.Room(req.RoomID).Users(),
+		}
+		p.Body = body.ToBytes()*/
 	default:
 		// TODO ack ok&failed
+		log.Infoln("default",p.Op)
 		if err := s.Receive(ctx, ch.Mid, p); err != nil {
 			log.Errorf("s.Report(%d) op:%d error(%v)", ch.Mid, p.Op, err)
 		}

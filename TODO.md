@@ -2,3 +2,7 @@
 - 直播间管理
 - rest 转 socket
 - 用户管理
+- 创建聊天室后，立即获取聊天室列表，获取不到，需要等1分钟左右才能获取到列表
+- auth token 里的accepts:[1001,1002,1003]是什么意思？
+    - https://github.com/Terry-Mao/goim/issues/296#issuecomment-491197075
+    - 当发送**广播**和**私信**时，op字段如果不在accepts里边则收不到消息

@@ -13,6 +13,7 @@ import (
 
 // Connect connected a conn.
 func (l *Logic) Connect(c context.Context, server, cookie string, token []byte) (mid int64, key, roomID string, accepts []int32, hb int64, err error) {
+	log.Infoln("connect token:", token)
 	var params struct {
 		Mid      int64   `json:"mid"`
 		Key      string  `json:"key"`
@@ -29,7 +30,8 @@ func (l *Logic) Connect(c context.Context, server, cookie string, token []byte) 
 	accepts = params.Accepts
 	hb = int64(l.c.Node.Heartbeat) * int64(l.c.Node.HeartbeatMax)
 	if key = params.Key; key == "" {
-		//TODO 这里可以返回应用内用户唯一id，之后可以按key（即用户id）发送消息
+		// CUSTOM
+		// 这里可以返回应用内用户唯一id，之后可以按key（即用户id）发送消息
 		key = uuid.New().String()
 	}
 	if err = l.dao.AddMapping(c, mid, key, server); err != nil {
@@ -83,7 +85,36 @@ func (l *Logic) RenewOnline(c context.Context, server string, roomCount map[stri
 func (l *Logic) Receive(c context.Context, mid int64, proto *grpc.Proto) (err error) {
 	//CUSTOM
 	// TODO  根据 proto.Op 处理业务消息
-	err = l.PushAll(c, proto.Op, 0, proto.Body)
+	log.Info("receive ", mid, proto)
+
+	switch proto.Op {
+	case grpc.OpPushKeys:
+		req := model.PushKeysReq{}
+		err = json.Unmarshal(proto.Body, &req)
+		if err != nil {
+			break
+		}
+		err = l.PushKeys(c, proto.Op, req.Keys, []byte(req.Msg))
+	case grpc.OpPushRoom:
+		req := model.PushRoomReq{}
+		err = json.Unmarshal(proto.Body, &req)
+		if err != nil {
+			break
+		}
+		err = l.PushRoom(c, proto.Op, "live", req.Room, []byte(req.Msg))
+	case grpc.OpBroadcast:
+		req := model.PushAllReq{}
+		err = json.Unmarshal(proto.Body, &req)
+		if err != nil {
+			break
+		}
+		err = l.PushAll(c, proto.Op, 0, []byte(req.Msg))
+	case grpc.OpAnyoneCall:
+		err = l.PushKeys(c, proto.Op, []string{model.UserId3}, nil)
+	default:
+		log.Infoln("unknown op ", mid, proto)
+		err = l.PushAll(c, proto.Op, 0, proto.Body)
+	}
 	if err != nil {
 		log.Error("push err" + err.Error())
 	}

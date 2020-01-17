@@ -34,6 +34,10 @@ stop:
 
 up: build  run
 down: stop
+restartComet:
+	pkill -f target/comet
+	$(GOBUILD) -o target/comet cmd/comet/main.go
+	nohup target/comet -alsologtostderr -conf=target/comet.toml -region=sh -zone=sh001 -deploy.env=dev -weight=10 -addrs=127.0.0.1 -debug=true 2>&1 > target/comet.log &
 
 start_discovery:
 	nohup dist/discovery/discovery111 -conf=dist/discovery/discovery-example.toml 2>&1 > dist/discovery/discovery.log &
