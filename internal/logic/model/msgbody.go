@@ -22,7 +22,7 @@ var Uid2Mid = map[string]int64{
 	UserId4: Mid4,
 }
 
-type JoinRoomReq struct {
+type CreateRoomReq struct {
 	ID       string `json:"id"`
 	FromID   string `json:"fromId"`
 	RoomID   string `json:"roomId"`
@@ -30,13 +30,13 @@ type JoinRoomReq struct {
 	EndType  string `json:"endType"`
 }
 
-type JoinRoomReply struct {
+type CreateRoomReply struct {
 	ID             string   `json:"id"`
 	MasterID       string   `json:"masterId"`
 	OnlineUserList []string `json:"onlineUserList"`
 }
 
-func (r JoinRoomReply) ToBytes() []byte {
+func (r CreateRoomReply) ToBytes() []byte {
 	b, _ := json.Marshal(r)
 	return b
 }

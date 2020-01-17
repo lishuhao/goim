@@ -11,8 +11,8 @@ const (
 	OpBroadcastReply = int32(2006)
 
 	//加入房间
-	OpJoinRoom      = int32(10001)
-	OpJoinRoomReply = int32(10002)
+	OpCreateRoom      = int32(10001)
+	OpCreateRoomReply = int32(10002)
 
 	//离开房间
 	OpLeaveRoom = int32(10003)

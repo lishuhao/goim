@@ -2,6 +2,7 @@ package comet
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	model "github.com/Terry-Mao/goim/api/comet/grpc"
@@ -9,6 +10,7 @@ import (
 	"github.com/Terry-Mao/goim/pkg/strings"
 	log "github.com/golang/glog"
 
+	msg "github.com/Terry-Mao/goim/internal/logic/model"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/encoding/gzip"
 )
@@ -73,6 +75,7 @@ func (s *Server) Operate(ctx context.Context, p *model.Proto, ch *Channel, b *Bu
 			log.Errorf("b.ChangeRoom(%s) error(%v)", p.Body, err)
 		}
 		p.Op = model.OpChangeRoomReply
+		log.Infoln("change room: ",b.rooms,b.RoomsCount())
 	case model.OpSub:
 		if ops, err := strings.SplitInt32s(string(p.Body), ","); err == nil {
 			ch.Watch(ops...)
@@ -83,22 +86,22 @@ func (s *Server) Operate(ctx context.Context, p *model.Proto, ch *Channel, b *Bu
 			ch.UnWatch(ops...)
 		}
 		p.Op = model.OpUnsubReply
-	/*case model.OpJoinRoom:
-		req := msg.JoinRoomReq{}
+	case model.OpCreateRoom:
+		req := msg.CreateRoomReq{}
 		err := json.Unmarshal(p.Body, &req)
 		if err != nil {
 			break
 		}
-		if err := b.ChangeRoom(req.RoomID, ch); err != nil {
-			log.Errorf("b.ChangeRoom(%s) error(%v)", p.Body, err)
+		if err := b.Put(req.RoomID, ch); err != nil {
+			log.Errorf("create room error(%v)", p.Body, err)
 		}
-		p.Op = model.OpJoinRoomReply
-		body := msg.JoinRoomReply{
+		p.Op = model.OpCreateRoomReply
+		body := msg.CreateRoomReply{
 			ID:             "joinRoomResponse",
 			MasterID:       b.Room(req.RoomID).MasterId(),
 			OnlineUserList: b.Room(req.RoomID).Users(),
 		}
-		p.Body = body.ToBytes()*/
+		p.Body = body.ToBytes()
 	default:
 		// TODO ack ok&failed
 		log.Infoln("default",p.Op)
