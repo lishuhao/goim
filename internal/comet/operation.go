@@ -87,14 +87,12 @@ func (s *Server) Operate(ctx context.Context, p *model.Proto, ch *Channel, b *Bu
 		}
 		p.Op = model.OpUnsubReply
 	case model.OpCreateRoom:
-		log.Info("OpCreateRoom")
 		req := msg.CreateRoomReq{}
 		err := json.Unmarshal(p.Body, &req)
 		if err != nil {
 			log.Error("Unmarshal", err)
 			break
 		}
-		log.Info("OpCreateRoom")
 		if err := b.ChangeRoom(req.RoomID, ch); err != nil {
 			log.Errorf("create room error(%v) body(%v)", err, p.Body)
 		}

@@ -66,8 +66,14 @@ func (b *Bucket) RoomsCount() (res map[string]int32) {
 }
 
 // ChangeRoom change ro room
+// 注意：nrid 不能等于 旧聊天室id
 func (b *Bucket) ChangeRoom(nrid string, ch *Channel) (err error) {
 	log.Info("change room start")
+	if ch.Room != nil && nrid == ch.Room.ID{
+		return nil
+	}
+	// CUSTOM TODO 如果是主播离开房间，删除房间
+
 	var (
 		nroom *Room
 		ok    bool

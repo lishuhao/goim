@@ -16,7 +16,7 @@ func TestRoom_MasterId(t *testing.T) {
 
 func TestRoom_Users(t *testing.T) {
 	room := NewRoom("1000")
-	assert.Nil(t, room.Users())
+	assert.Equal(t,[]string{}, room.Users())
 
 	room.Put(&Channel{Key: "1"})
 	room.Put(&Channel{Key: "2"})
