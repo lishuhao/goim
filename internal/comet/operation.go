@@ -69,6 +69,8 @@ func (s *Server) Receive(ctx context.Context, mid int64, p *model.Proto) (err er
 // Operate operate.
 func (s *Server) Operate(ctx context.Context, p *model.Proto, ch *Channel, b *Bucket) error {
 	log.Info("operate proto", *p)
+	//是否发送Ready 信号。
+	sendSignal := false
 	switch p.Op {
 	case model.OpChangeRoom:
 		if err := b.ChangeRoom(string(p.Body), ch); err != nil {
@@ -87,27 +89,12 @@ func (s *Server) Operate(ctx context.Context, p *model.Proto, ch *Channel, b *Bu
 		}
 		p.Op = model.OpUnsubReply
 	case model.OpCreateRoom:
-		req := msg.CreateRoomReq{}
-		err := json.Unmarshal(p.Body, &req)
-		if err != nil {
-			log.Error("Unmarshal", err)
-			break
-		}
-		if err := b.ChangeRoom(req.RoomID, ch); err != nil {
-			log.Errorf("create room error(%v) body(%v)", err, p.Body)
-		}
-		p.Op = model.OpCreateRoomReply
-		if req.RoomID != "" {
-			body := msg.CreateRoomReply{
-				ID:             "joinRoomResponse",
-				MasterID:       b.Room(req.RoomID).MasterId(),
-				OnlineUserList: b.Room(req.RoomID).Users(),
-			}
-			p.Body = body.ToBytes()
-		}
-		ch.CliProto.SetAdv()
-		ch.Signal()
+		createRoom(p, b, ch)
+		sendSignal = true
 		log.Info("create room rooms:", b.rooms)
+	case model.OpLeaveRoom:
+		leaveRoom(p, b, ch)
+		sendSignal = true
 	default:
 		// TODO ack ok&failed
 		log.Info("default", p.Op)
@@ -116,5 +103,44 @@ func (s *Server) Operate(ctx context.Context, p *model.Proto, ch *Channel, b *Bu
 		}
 		p.Body = nil
 	}
+	if sendSignal {
+		ch.CliProto.SetAdv()
+		ch.Signal()
+	}
 	return nil
+}
+
+func createRoom(p *model.Proto, b *Bucket, ch *Channel) {
+	req := msg.CreateRoomReq{}
+	err := json.Unmarshal(p.Body, &req)
+	if err != nil {
+		log.Error("Unmarshal", err)
+		return
+	}
+	if req.RoomID == "" {
+		log.Error("create room id empty")
+		return
+	}
+	if err := b.ChangeRoom(req.RoomID, ch); err != nil {
+		log.Errorf("create room error(%v) body(%v)", err, p.Body)
+		return
+	}
+	p.Op = model.OpCreateRoomReply
+	body := msg.CreateRoomReply{
+		ID:             "joinRoomResponse",
+		MasterID:       b.Room(req.RoomID).MasterId(),
+		OnlineUserList: b.Room(req.RoomID).Users(),
+	}
+	p.Body = body.ToBytes()
+
+	return
+}
+
+func leaveRoom(p *model.Proto, b *Bucket, ch *Channel) {
+	if err := b.ChangeRoom("", ch); err != nil {
+		log.Errorf("create room error(%v) body(%v)", err, p.Body)
+		return
+	}
+
+	return
 }

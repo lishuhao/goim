@@ -34,6 +34,8 @@ stop:
 
 up: build  run
 down: stop
+restart: down up
+
 restartComet:
 	pkill -f target/comet
 	$(GOBUILD) -o target/comet cmd/comet/main.go

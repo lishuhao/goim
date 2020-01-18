@@ -6,5 +6,9 @@
 - 连续创建聊天室会导致comet panic
 - panic recover
 - auth token 里的accepts:[1001,1002,1003]是什么意思？
-    - https://github.com/Terry-Mao/goim/issues/296#issuecomment-491197075
+    - ~~https://github.com/Terry-Mao/goim/issues/296#issuecomment-491197075~~
     - 当发送**广播**和**私信**时，op字段如果不在accepts里边则收不到消息
+
+
+- 聊天室列表更新不及时。logic接口获取的聊天室列表是从comet 同步过来的（RenewOnline），
+    10秒同步一次同步到logic，logic再存储到redis
