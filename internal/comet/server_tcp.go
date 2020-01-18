@@ -127,7 +127,7 @@ func (s *Server) ServeTCP(conn *net.TCPConn, rp, wp *bytes.Pool, tr *xtime.Timer
 	// must not setadv, only used in auth
 	step = 1
 	if p, err = ch.CliProto.Set(); err == nil {
-		log.Infoln("start auth ",time.Now().Unix())
+		log.Info("start auth ",time.Now().Unix())
 		if ch.Mid, ch.Key, rid, accepts, hb, err = s.authTCP(ctx, rr, wr, p); err == nil {
 			ch.Watch(accepts...)
 			b = s.Bucket(ch.Key)
@@ -360,7 +360,7 @@ func (s *Server) authTCP(ctx context.Context, rr *bufio.Reader, wr *bufio.Writer
 		log.Errorf("authTCP.Connect(key:%v).err(%v),proto(%s)", key, err, p.String())
 		return
 	}
-	log.Infoln("authTCP ",p)
+	log.Info("authTCP ",p)
 	p.Op = grpc.OpAuthReply
 	p.Body = nil
 	if err = p.WriteTCP(wr); err != nil {

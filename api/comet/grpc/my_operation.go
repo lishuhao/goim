@@ -10,7 +10,10 @@ const (
 	OpBroadcast = int32(2005)
 	OpBroadcastReply = int32(2006)
 
-	//加入房间
+	//销毁房间
+	OpDestroyRoom = int32(2007)
+
+	//创建房间
 	OpCreateRoom      = int32(10001)
 	OpCreateRoomReply = int32(10002)
 

@@ -32,8 +32,8 @@ stop:
 
 #----------------------------
 
-up: start_discovery build  run
-down: stop stop_discovery
+up: build  run
+down: stop
 restartComet:
 	pkill -f target/comet
 	$(GOBUILD) -o target/comet cmd/comet/main.go

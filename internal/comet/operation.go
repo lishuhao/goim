@@ -75,7 +75,7 @@ func (s *Server) Operate(ctx context.Context, p *model.Proto, ch *Channel, b *Bu
 			log.Errorf("b.ChangeRoom(%s) error(%v)", p.Body, err)
 		}
 		p.Op = model.OpChangeRoomReply
-		log.Infoln("change room: ",b.rooms,b.RoomsCount())
+		log.Info("change room: ", b.rooms, b.RoomsCount())
 	case model.OpSub:
 		if ops, err := strings.SplitInt32s(string(p.Body), ","); err == nil {
 			ch.Watch(ops...)
@@ -87,24 +87,32 @@ func (s *Server) Operate(ctx context.Context, p *model.Proto, ch *Channel, b *Bu
 		}
 		p.Op = model.OpUnsubReply
 	case model.OpCreateRoom:
+		log.Info("OpCreateRoom")
 		req := msg.CreateRoomReq{}
 		err := json.Unmarshal(p.Body, &req)
 		if err != nil {
+			log.Error("Unmarshal", err)
 			break
 		}
-		if err := b.Put(req.RoomID, ch); err != nil {
-			log.Errorf("create room error(%v)", p.Body, err)
+		log.Info("OpCreateRoom")
+		if err := b.ChangeRoom(req.RoomID, ch); err != nil {
+			log.Errorf("create room error(%v) body(%v)", err, p.Body)
 		}
 		p.Op = model.OpCreateRoomReply
-		body := msg.CreateRoomReply{
-			ID:             "joinRoomResponse",
-			MasterID:       b.Room(req.RoomID).MasterId(),
-			OnlineUserList: b.Room(req.RoomID).Users(),
+		if req.RoomID != "" {
+			body := msg.CreateRoomReply{
+				ID:             "joinRoomResponse",
+				MasterID:       b.Room(req.RoomID).MasterId(),
+				OnlineUserList: b.Room(req.RoomID).Users(),
+			}
+			p.Body = body.ToBytes()
 		}
-		p.Body = body.ToBytes()
+		ch.CliProto.SetAdv()
+		ch.Signal()
+		log.Info("create room rooms:", b.rooms)
 	default:
 		// TODO ack ok&failed
-		log.Infoln("default",p.Op)
+		log.Info("default", p.Op)
 		if err := s.Receive(ctx, ch.Mid, p); err != nil {
 			log.Errorf("s.Report(%d) op:%d error(%v)", ch.Mid, p.Op, err)
 		}

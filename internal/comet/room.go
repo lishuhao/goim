@@ -90,18 +90,35 @@ func (r *Room) OnlineNum() int32 {
 	return r.Online
 }
 
+// 聊天室创建者Key
+// 链表最后一个元素
 func (r Room) MasterId() string {
-	if c := r.next; c == nil {
+	next := r.next
+	if next == nil {
 		return ""
-	} else {
-		return c.Key
+	}
+	prev := next
+	for {
+		prev = next
+		next = next.Next
+		if next == nil {
+			return prev.Key
+		}
 	}
 }
 
+//聊天室成员Key列表
 func (r Room) Users() []string {
 	users := make([]string, 0)
+	c := r.next
+	if c == nil {
+		return nil
+	} else {
+		users = append(users, c.Key)
+	}
+
 	for {
-		if c := r.next; c == nil {
+		if c = c.Next; c == nil {
 			break
 		} else {
 			users = append(users, c.Key)

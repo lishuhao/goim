@@ -64,7 +64,7 @@ func (j *Job) broadcast(operation int32, body []byte, speed int32) (err error) {
 	if len(comets) == 0 {
 		log.Warning("broadcast len(comets) = 0")
 		speed = 0
-	}else{
+	} else {
 		speed /= int32(len(comets))
 	}
 	var args = comet.BroadcastReq{
@@ -97,6 +97,6 @@ func (j *Job) broadcastRoomRawBytes(roomID string, body []byte) (err error) {
 			log.Errorf("c.BroadcastRoom(%v) roomID:%s serverID:%s error(%v)", args, roomID, serverID, err)
 		}
 	}
-	log.Infof("broadcastRoom comets:%d", len(comets))
+	log.Infof("broadcastRoom comets:%d", len(comets), comets)
 	return
 }

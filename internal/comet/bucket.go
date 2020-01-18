@@ -1,6 +1,7 @@
 package comet
 
 import (
+	log "github.com/golang/glog"
 	"sync"
 	"sync/atomic"
 
@@ -66,6 +67,7 @@ func (b *Bucket) RoomsCount() (res map[string]int32) {
 
 // ChangeRoom change ro room
 func (b *Bucket) ChangeRoom(nrid string, ch *Channel) (err error) {
+	log.Info("change room start")
 	var (
 		nroom *Room
 		ok    bool
@@ -79,6 +81,7 @@ func (b *Bucket) ChangeRoom(nrid string, ch *Channel) (err error) {
 		ch.Room = nil
 		return
 	}
+	log.Info("change room")
 	b.cLock.Lock()
 	if nroom, ok = b.rooms[nrid]; !ok {
 		nroom = NewRoom(nrid)
@@ -93,6 +96,7 @@ func (b *Bucket) ChangeRoom(nrid string, ch *Channel) (err error) {
 		return
 	}
 	ch.Room = nroom
+	log.Info("change room end")
 	return
 }
 

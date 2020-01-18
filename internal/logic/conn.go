@@ -13,7 +13,7 @@ import (
 
 // Connect connected a conn.
 func (l *Logic) Connect(c context.Context, server, cookie string, token []byte) (mid int64, key, roomID string, accepts []int32, hb int64, err error) {
-	log.Infoln("connect token:", token)
+	log.Info("connect token:", token)
 	var params struct {
 		Mid      int64   `json:"mid"`
 		Key      string  `json:"key"`
@@ -112,7 +112,7 @@ func (l *Logic) Receive(c context.Context, mid int64, proto *grpc.Proto) (err er
 	case grpc.OpAnyoneCall:
 		err = l.PushKeys(c, proto.Op, []string{model.UserId3}, nil)
 	default:
-		log.Infoln("unknown op ", mid, proto)
+		log.Info("unknown op ", mid, proto)
 		err = l.PushAll(c, proto.Op, 0, proto.Body)
 	}
 	if err != nil {
