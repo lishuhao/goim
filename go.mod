@@ -5,7 +5,6 @@ require (
 	github.com/Shopify/sarama v1.19.0 // indirect
 	github.com/bilibili/discovery v1.0.1
 	github.com/bsm/sarama-cluster v2.1.15+incompatible
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/eapache/go-resiliency v1.1.0 // indirect
 	github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21 // indirect
 	github.com/eapache/queue v1.1.0 // indirect
@@ -17,6 +16,7 @@ require (
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/uuid v1.0.0
 	github.com/issue9/assert v1.0.0
+	github.com/json-iterator/go v1.1.9
 	github.com/pierrec/lz4 v2.0.5+incompatible // indirect
 	github.com/pkg/errors v0.8.0
 	github.com/rcrowley/go-metrics v0.0.0-20181016184325-3113b8401b8a // indirect

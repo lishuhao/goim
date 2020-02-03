@@ -71,6 +71,8 @@ func (s *Server) Operate(ctx context.Context, p *model.Proto, ch *Channel, b *Bu
 	log.Info("operate proto", *p)
 	//是否发送Ready 信号。
 	sendSignal := false
+	//是否需要调用Receive转发
+	forwarding := false
 	switch p.Op {
 	case model.OpChangeRoom:
 		if err := b.ChangeRoom(string(p.Body), ch); err != nil {
@@ -95,6 +97,16 @@ func (s *Server) Operate(ctx context.Context, p *model.Proto, ch *Channel, b *Bu
 	case model.OpLeaveRoom:
 		leaveRoom(p, b, ch)
 		sendSignal = true
+	case model.OpAnyoneCall:
+		p.Op = model.OpAnyoneCallReply
+		p.Body = nil
+		sendSignal = true
+		forwarding = true
+	case model.OpIncomingCallResp:
+		p.Op = model.OpIncomingCallRespReply
+		p.Body = nil
+		sendSignal = true
+		forwarding = true
 	default:
 		// TODO ack ok&failed
 		log.Info("default", p.Op)
@@ -103,9 +115,15 @@ func (s *Server) Operate(ctx context.Context, p *model.Proto, ch *Channel, b *Bu
 		}
 		p.Body = nil
 	}
+
 	if sendSignal {
 		ch.CliProto.SetAdv()
 		ch.Signal()
+	}
+	if forwarding {
+		if err := s.Receive(ctx, ch.Mid, p); err != nil {
+			log.Errorf("s.Report(%d) op:%d error(%v)", ch.Mid, p.Op, err)
+		}
 	}
 	return nil
 }
@@ -141,6 +159,8 @@ func leaveRoom(p *model.Proto, b *Bucket, ch *Channel) {
 		log.Errorf("create room error(%v) body(%v)", err, p.Body)
 		return
 	}
+	p.Op = model.OpLeaveRoomReply
+	p.Body = nil
 
 	return
 }

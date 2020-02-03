@@ -19,10 +19,13 @@ const (
 
 	//离开房间
 	OpLeaveRoom = int32(10003)
+	OpLeaveRoomReply = int32(10004)
 
 	//申请连麦
 	OpAnyoneCall = int32(10005)
+	OpAnyoneCallReply = int32(10006)
 
 	//主播回复连麦申请
 	OpIncomingCallResp = int32(10007)
+	OpIncomingCallRespReply = int32(10008)
 )

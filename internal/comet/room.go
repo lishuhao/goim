@@ -90,21 +90,27 @@ func (r *Room) OnlineNum() int32 {
 	return r.Online
 }
 
+//---- 以下为新添加方法
+
 // 聊天室创建者Key
 // 链表最后一个元素
-func (r Room) MasterId() string {
+func (r *Room) MasterId() string {
 	masterId := ""
+	r.rLock.RLock()
 	for ch := r.next; ch != nil; ch = ch.Next {
 		masterId = ch.Key
 	}
+	r.rLock.RUnlock()
 	return masterId
 }
 
 //聊天室成员Key列表
-func (r Room) Users() []string {
+func (r *Room) Users() []string {
 	users := make([]string, 0)
+	r.rLock.RLock()
 	for ch := r.next; ch != nil; ch = ch.Next {
 		users = append(users, ch.Key)
 	}
+	r.rLock.RUnlock()
 	return users
 }

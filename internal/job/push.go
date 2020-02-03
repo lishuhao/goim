@@ -97,6 +97,6 @@ func (j *Job) broadcastRoomRawBytes(roomID string, body []byte) (err error) {
 			log.Errorf("c.BroadcastRoom(%v) roomID:%s serverID:%s error(%v)", args, roomID, serverID, err)
 		}
 	}
-	log.Infof("broadcastRoom comets:%d", len(comets), comets)
+	log.Infof("broadcastRoom comets:%d %v", len(comets), comets)
 	return
 }

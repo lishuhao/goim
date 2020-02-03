@@ -41,14 +41,6 @@ func (r CreateRoomReply) ToBytes() []byte {
 	return b
 }
 
-//连麦申请
-type AnyoneCallReq struct {
-	ID       string `json:"id"`
-	FromID   string `json:"fromId"`
-	ToID     string `json:"toId"`
-	SdpOffer string `json:"sdpOffer"`
-}
-
 type PushKeysReq struct {
 	Keys []string `json:"keys"`
 	Msg  string   `json:"msg"`

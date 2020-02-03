@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"encoding/json"
+	jsoniter "github.com/json-iterator/go"
 	"time"
 
 	"github.com/Terry-Mao/goim/api/comet/grpc"
@@ -110,7 +111,9 @@ func (l *Logic) Receive(c context.Context, mid int64, proto *grpc.Proto) (err er
 		}
 		err = l.PushAll(c, proto.Op, 0, []byte(req.Msg))
 	case grpc.OpAnyoneCall:
-		err = l.PushKeys(c, proto.Op, []string{model.UserId3}, nil)
+		err = linkMikeApply(l, c, proto)
+	case grpc.OpIncomingCallResp:
+		err = linkMikeResp(l, c, proto)
 	default:
 		log.Info("unknown op ", mid, proto)
 		err = l.PushAll(c, proto.Op, 0, proto.Body)
@@ -121,4 +124,23 @@ func (l *Logic) Receive(c context.Context, mid int64, proto *grpc.Proto) (err er
 
 	log.Infof("receive mid:%d message:%+v", mid, proto)
 	return
+}
+
+//连麦申请
+func linkMikeApply(l *Logic, c context.Context, proto *grpc.Proto) error {
+	// 转发给媒体服务器
+	err := l.PushKeys(c, proto.Op, []string{model.UserId3}, proto.Body)
+	// 发送给主播
+	toId := jsoniter.Get(proto.Body, "toId").ToString()
+	err = l.PushKeys(c, proto.Op, []string{toId}, proto.Body)
+
+	return err
+}
+
+// 主播连麦回复
+func linkMikeResp(l *Logic, c context.Context, proto *grpc.Proto) error {
+	toId := jsoniter.Get(proto.Body, "toId").ToString()
+	//发送给申请连麦的用户
+	err := l.PushKeys(c, proto.Op, []string{toId}, proto.Body)
+	return err
 }
