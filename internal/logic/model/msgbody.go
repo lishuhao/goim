@@ -1,6 +1,10 @@
 package model
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"github.com/google/uuid"
+	"time"
+)
 
 const (
 	UserId1 = "haiping"
@@ -22,7 +26,7 @@ var Uid2Mid = map[string]int64{
 	UserId4: Mid4,
 }
 
-type CreateRoomReq struct {
+type JoinRoomReq struct {
 	ID       string `json:"id"`
 	FromID   string `json:"fromId"`
 	RoomID   string `json:"roomId"`
@@ -30,20 +34,35 @@ type CreateRoomReq struct {
 	EndType  string `json:"endType"`
 }
 
-type CreateRoomReply struct {
+type JoinRoomReply struct {
 	ID             string   `json:"id"`
 	MasterID       string   `json:"masterId"`
 	OnlineUserList []string `json:"onlineUserList"`
 }
 
-func (r CreateRoomReply) ToBytes() []byte {
+func (r JoinRoomReply) ToBytes() []byte {
 	b, _ := json.Marshal(r)
 	return b
 }
 
-type PushKeysReq struct {
-	Keys []string `json:"keys"`
-	Msg  string   `json:"msg"`
+type PushMessageReq struct {
+	ConversationType int    `json:"conversationType"`
+	TargetId         string `json:"targetId"`
+	FromId           string `json:"fromId"`
+	Content          string `json:"content"`
+	ObjectName       string `json:"objectName"`
+}
+
+func (p PushMessageReq) ToPushToClient() PushToClient {
+	return PushToClient{
+		ConversationType: p.ConversationType,
+		TargetId:         p.TargetId,
+		FromId:           p.FromId,
+		Content:          p.Content,
+		ObjectName:       p.ObjectName,
+		SentTime:         time.Now().Unix(),
+		MessageUId:       uuid.New().String(),
+	}
 }
 
 type PushRoomReq struct {
@@ -51,6 +70,17 @@ type PushRoomReq struct {
 	Msg  string `json:"msg"`
 }
 
-type PushAllReq struct {
-	Msg string `json:"msg"`
+type PushToClient struct {
+	ConversationType int    `json:"conversationType"`
+	TargetId         string `json:"targetId"`
+	FromId           string `json:"fromId"`
+	Content          string `json:"content"`
+	ObjectName       string `json:"objectName"`
+	SentTime         int64  `json:"sentTime"`
+	MessageUId       string `json:"messageUId"`
+}
+
+func (p PushToClient) ToBytes() []byte {
+	b, _ := json.Marshal(p)
+	return b
 }

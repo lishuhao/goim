@@ -90,8 +90,8 @@ func (s *Server) Operate(ctx context.Context, p *model.Proto, ch *Channel, b *Bu
 			ch.UnWatch(ops...)
 		}
 		p.Op = model.OpUnsubReply
-	case model.OpCreateRoom:
-		createRoom(p, b, ch)
+	case model.OpJoinRoom:
+		joinRoom(p, b, ch)
 		sendSignal = true
 		log.Info("create room rooms:", b.rooms)
 	case model.OpLeaveRoom:
@@ -128,8 +128,8 @@ func (s *Server) Operate(ctx context.Context, p *model.Proto, ch *Channel, b *Bu
 	return nil
 }
 
-func createRoom(p *model.Proto, b *Bucket, ch *Channel) {
-	req := msg.CreateRoomReq{}
+func joinRoom(p *model.Proto, b *Bucket, ch *Channel) {
+	req := msg.JoinRoomReq{}
 	err := json.Unmarshal(p.Body, &req)
 	if err != nil {
 		log.Error("Unmarshal", err)
@@ -143,8 +143,8 @@ func createRoom(p *model.Proto, b *Bucket, ch *Channel) {
 		log.Errorf("create room error(%v) body(%v)", err, p.Body)
 		return
 	}
-	p.Op = model.OpCreateRoomReply
-	body := msg.CreateRoomReply{
+	p.Op = model.OpJoinRoomReply
+	body := msg.JoinRoomReply{
 		ID:             "joinRoomResponse",
 		MasterID:       b.Room(req.RoomID).MasterId(),
 		OnlineUserList: b.Room(req.RoomID).Users(),

@@ -89,27 +89,24 @@ func (l *Logic) Receive(c context.Context, mid int64, proto *grpc.Proto) (err er
 	log.Info("receive ", mid, proto)
 
 	switch proto.Op {
-	case grpc.OpPushKeys:
-		req := model.PushKeysReq{}
+	case grpc.OpPushMessage:
+		req := model.PushMessageReq{}
 		err = json.Unmarshal(proto.Body, &req)
 		if err != nil {
 			break
 		}
-		err = l.PushKeys(c, proto.Op, req.Keys, []byte(req.Msg))
-	case grpc.OpPushRoom:
-		req := model.PushRoomReq{}
-		err = json.Unmarshal(proto.Body, &req)
-		if err != nil {
-			break
+		switch req.ConversationType {
+		case grpc.ConversationTypePrivate:
+			err = l.PushKeys(c, proto.Op, []string{req.TargetId}, req.ToPushToClient().ToBytes())
+		case grpc.ConversationTypeChatRoom:
+			roomType, roomId, err := model.DecodeRoomKey(req.TargetId)
+			if err != nil {
+				log.Error("room id format err", req.TargetId)
+			}
+			err = l.PushRoom(c, proto.Op, roomType, roomId, req.ToPushToClient().ToBytes())
 		}
-		err = l.PushRoom(c, proto.Op, "live", req.Room, []byte(req.Msg))
-	case grpc.OpBroadcast:
-		req := model.PushAllReq{}
-		err = json.Unmarshal(proto.Body, &req)
-		if err != nil {
-			break
-		}
-		err = l.PushAll(c, proto.Op, 0, []byte(req.Msg))
+		/*	case grpc.OpBroadcast:
+			err = l.PushAll(c, proto.Op, 0, proto.Body)*/
 	case grpc.OpAnyoneCall:
 		err = linkMikeApply(l, c, proto)
 	case grpc.OpIncomingCallResp:
