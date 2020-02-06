@@ -105,8 +105,8 @@ func (l *Logic) Receive(c context.Context, mid int64, proto *grpc.Proto) (err er
 			}
 			err = l.PushRoom(c, proto.Op, roomType, roomId, req.ToPushToClient().ToBytes())
 		}
-		/*	case grpc.OpBroadcast:
-			err = l.PushAll(c, proto.Op, 0, proto.Body)*/
+	case grpc.OpBroadcast:
+		err = l.PushAll(c, proto.Op, 0, proto.Body)
 	case grpc.OpAnyoneCall:
 		err = linkMikeApply(l, c, proto)
 	case grpc.OpIncomingCallResp:
