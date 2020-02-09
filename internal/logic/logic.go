@@ -159,3 +159,9 @@ func (l *Logic) loadOnline() (err error) {
 	l.roomCount = roomCount
 	return
 }
+
+// ------
+//根据user key 返回mid
+func (l *Logic) MidFromKey(key string) int64 {
+	return l.dao.MidFromKey(key)
+}

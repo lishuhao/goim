@@ -2,7 +2,6 @@ package http
 
 import (
 	"fmt"
-	"github.com/Terry-Mao/goim/internal/logic/model"
 	"github.com/gin-gonic/gin"
 	"strconv"
 	"strings"
@@ -11,12 +10,9 @@ import (
 //获取GoIM auth时需要的token
 func (s *Server) getGoIMToken(ctx *gin.Context) {
 	userId := ctx.Param("user_id")
-	if mid, ok := model.Uid2Mid[userId]; ok {
-		token := fmt.Sprintf(`{"mid":%d,"key":"%s","room_id":"","platform":"web","accepts":[%s]}`, mid, userId, watchOp())
-		result(ctx, token, OK)
-	} else {
-		result(ctx, "", RequestErr)
-	}
+	mid := s.logic.MidFromKey(userId)
+	token := fmt.Sprintf(`{"mid":%d,"key":"%s","room_id":"","platform":"web","accepts":[%s]}`, mid, userId, watchOp())
+	result(ctx, token, OK)
 }
 
 //当发送**广播**和**私信**时，op字段如果不在accepts里边则收不到消息

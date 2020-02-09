@@ -277,3 +277,35 @@ func (d *Dao) DelServerOnline(c context.Context, server string) (err error) {
 	}
 	return
 }
+
+// -----
+// key 对应的mid计数
+func (d *Dao) midCounter() int64 {
+	const midCounterKey = "midCounterKey"
+	conn := d.redis.Get()
+	count, err := redis.Int64(conn.Do("INCR", midCounterKey))
+	if err != nil {
+		log.Error("incr redis counter err", err)
+		return 0
+	}
+	return count
+}
+
+func (d *Dao) MidFromKey(key string) int64 {
+	const key2midKey = "key2mid"
+	conn := d.redis.Get()
+	mid, err := redis.Int64(conn.Do("HGET", key2midKey, key))
+	if err == nil {
+		return mid
+	} else if err == redis.ErrNil {
+		count := d.midCounter()
+		_, err = conn.Do("HSET", key2midKey, key, count)
+		if err != nil {
+			log.Error("hset err", err)
+		}
+		return count
+	} else {
+		log.Error("hget err", err, key)
+		return 0
+	}
+}

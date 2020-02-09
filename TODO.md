@@ -1,5 +1,5 @@
 [ - ] comet 重启后cometServer count 为0，需等待一段时间(几分钟)  
-[ - ] 聊天室管理  
+[ - ] 聊天室管理，程序重启防止聊天室数据就丢失  
 [ x ] rest 转 socket
 [ x ] 连续创建聊天室会导致comet panic  
 [ - ] panic recover  
@@ -9,3 +9,7 @@
 [ x ] 创建聊天室后，立即获取聊天室列表，获取不到，需要等一会儿左右才能获取到列表  
     因为logic接口获取的聊天室列表是从comet 同步过来的（RenewOnline），
     10秒同步一次同步到logic，logic再存储到redis
+    
+问题：panic: kafka server: Offset's topic has not yet been created
+https://github.com/woodsaj/go-kafka-test/issues/1#issuecomment-215338278
+make sure the advertised host is being set correctly.
